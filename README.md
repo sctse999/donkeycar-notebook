@@ -1,4 +1,6 @@
-# donkeycar-advance-course
+# Donkeycar Notebook
+
+This repo contains useful jupyter notebook for learning donkey car. 
 
 
 ## Clone this project to your raspberry pi
