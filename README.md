@@ -2,6 +2,10 @@
 
 This repo contains useful jupyter notebook for learning donkey car. 
 
+## First time setup
+
+- Run the `0. Install libraries.ipynb`
+- 
 
 ## Notebook Listing
 
