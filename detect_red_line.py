@@ -39,8 +39,17 @@ DEFAULT_PATHS = [
 
 def get_tub_path():
     print("\nAvailable tub paths:")
-    for i, path in enumerate(DEFAULT_PATHS, 1):
-        print(f"{i}. {path}")
+    
+    # List the default path
+    print(f"1. {DEFAULT_PATHS[0]}")
+    
+    # List folders under ~/mycar/data
+    mycar_data_path = os.path.join(DEFAULT_PATHS[1], "data")
+    if os.path.exists(mycar_data_path):
+        folders = [f for f in os.listdir(mycar_data_path) if os.path.isdir(os.path.join(mycar_data_path, f)) and os.path.exists(os.path.join(mycar_data_path, f, "images"))]
+        for i, folder in enumerate(folders, 2):  # Start numbering from 2
+            print(f"{i}. {os.path.join(mycar_data_path, folder)}")
+    
     print("Or enter a custom path")
     
     while True:
@@ -49,9 +58,12 @@ def get_tub_path():
         # Default to the first path if no input is given
         if choice == "":
             selected_path = DEFAULT_PATHS[0]
-        # Check if input is a number corresponding to default paths
-        elif choice.isdigit() and 1 <= int(choice) <= len(DEFAULT_PATHS):
-            selected_path = DEFAULT_PATHS[int(choice) - 1]
+        # Check if input is a number corresponding to listed paths
+        elif choice.isdigit() and 1 <= int(choice) <= len(folders) + 1:
+            if int(choice) == 1:
+                selected_path = DEFAULT_PATHS[0]
+            else:
+                selected_path = os.path.join(mycar_data_path, folders[int(choice) - 2])  # Adjust index for folder selection
         else:
             selected_path = os.path.expanduser(choice)  # Handle ~ in custom paths
             
