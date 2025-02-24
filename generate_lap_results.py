@@ -17,6 +17,7 @@ try:
     from glob import glob
     import json
     from tabulate import tabulate
+    from lap_utils import get_tub_path, create_lap_table_data
 except ImportError as e:
     print("Error: Required packages are not installed.")
     print("Please install the required packages using pip:")
@@ -36,42 +37,6 @@ DEFAULT_PATHS = [
     "./basic/resource/red_line_tub",
     os.path.expanduser("~/mycar")
 ]
-
-def get_tub_path():
-    print("\nAvailable tub paths:")
-    
-    # List the default path
-    print(f"1. {DEFAULT_PATHS[0]}")
-    
-    # List folders under ~/mycar/data
-    mycar_data_path = os.path.join(DEFAULT_PATHS[1], "data")
-    if os.path.exists(mycar_data_path):
-        folders = [f for f in os.listdir(mycar_data_path) if os.path.isdir(os.path.join(mycar_data_path, f)) and os.path.exists(os.path.join(mycar_data_path, f, "images"))]
-        for i, folder in enumerate(folders, 2):  # Start numbering from 2
-            print(f"{i}. {os.path.join(mycar_data_path, folder)}")
-    
-    print("Or enter a custom path")
-    
-    while True:
-        choice = input("\nSelect tub path (enter number or custom path, default is 1): ").strip()
-        
-        # Default to the first path if no input is given
-        if choice == "":
-            selected_path = DEFAULT_PATHS[0]
-        # Check if input is a number corresponding to listed paths
-        elif choice.isdigit() and 1 <= int(choice) <= len(folders) + 1:
-            if int(choice) == 1:
-                selected_path = DEFAULT_PATHS[0]
-            else:
-                selected_path = os.path.join(mycar_data_path, folders[int(choice) - 2])  # Adjust index for folder selection
-        else:
-            selected_path = os.path.expanduser(choice)  # Handle ~ in custom paths
-            
-        # Verify the path exists
-        if os.path.exists(selected_path):
-            return selected_path
-        else:
-            print(f"Error: Path {selected_path} does not exist. Please try again.")
 
 def calculate_mask(image):
     # Convert the image to HSV colorspace 
@@ -111,7 +76,6 @@ def detect_red_line(image, threshold=DEFAULT_THRESHOLD):
     return red_percentage > threshold
 
 def analyze_laps():
-    # Get tub path from user
     tub_path = get_tub_path()
     
     # Construct images path
@@ -198,21 +162,8 @@ def analyze_laps():
     # Print results to console
     print(f"\nFound {len(laps)} complete laps:")
     
-    # Prepare table data
-    table_data = []
-    for i, lap in enumerate(laps, 1):
-        table_data.append([
-            i,
-            lap['start_frame'],
-            lap['end_frame'],
-            f"{lap['duration']:.2f}"
-        ])
-    
-    # Sort table data by duration (ascending)
-    table_data.sort(key=lambda x: float(x[3]))
-    
-    # Print table without borders
-    headers = ["Lap #", "Start Frame", "End Frame", "Duration (s)"]
+    # Use shared table creation function
+    table_data, headers = create_lap_table_data(laps)
     print("\n" + tabulate(table_data, headers=headers, tablefmt="plain"))
 
 if __name__ == "__main__":
