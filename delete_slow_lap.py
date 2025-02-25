@@ -3,12 +3,16 @@ import json
 from tabulate import tabulate
 from lap_utils import get_tub_path, create_lap_table_data, load_lap_results
 
-def delete_slow_lap_time(lap_results_path, manifest_path):
+def delete_slow_lap_time(tub_path):
     try:
-        lap_results = load_lap_results(os.path.dirname(lap_results_path))
+        lap_results = load_lap_results(tub_path)
     except FileNotFoundError as e:
         print(str(e))
         return
+
+    # Get paths to related files
+    meta_path = os.path.join(tub_path, 'meta.json')
+    manifest_path = os.path.join(tub_path, 'manifest.json')
 
     # List lap results to the user
     print("Lap Results (sorted in ascending order by duration):")
@@ -87,13 +91,24 @@ def delete_slow_lap_time(lap_results_path, manifest_path):
             json.dump(entry, file)
             file.write('\n')  # Write each JSON object on a new line
 
+    # Remove UUID from meta.json
+    try:
+        with open(meta_path, 'r') as file:
+            meta_data = json.load(file)
+            if 'uuid' in meta_data:
+                del meta_data['uuid']
+        
+        with open(meta_path, 'w') as file:
+            json.dump(meta_data, file)
+    except Exception as e:
+        print(f"Warning: Could not update meta.json: {e}")
+
     print(f"\nSoft deleted lap times equal to or longer than {slowest_lap_time:.2f} seconds.")
+    print("Removed UUID from meta.json for re-upload.")
 
 def main():
-    selected_tub = get_tub_path()
-    lap_results_path = os.path.join(selected_tub, 'lap_results.json')
-    manifest_path = os.path.join(selected_tub, 'manifest.json')
-    delete_slow_lap_time(lap_results_path, manifest_path)
+    tub_path = get_tub_path()
+    delete_slow_lap_time(tub_path)
 
 if __name__ == "__main__":
     main()
