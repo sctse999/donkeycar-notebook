@@ -44,3 +44,7 @@ This project works best on your raspberry pi. Copy and paste the following to th
 ## Commercial Use
 
 If you intend to use this project for making money, you must obtain our consent before you do so. Contact us at sales@robocarstore.com
+
+
+## Contributor
+- Alan Chan
